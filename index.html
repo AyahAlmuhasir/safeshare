@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeShare - Premium Location Awareness</title>
+    
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <div class="logo">
+                <span class="logo-icon" aria-hidden="true">🛡️</span>
+                <span class="logo-text">SafeShare</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#privacy">Privacy</a>
+                <a href="index-ar.html" class="lang-switch" title="Switch to Arabic" dir="rtl">AR / العربية</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+        
+        <div class="container hero-content">
+            <div class="hero-text">
+                <span class="hero-tag">Secure Image Analysis</span>
+                <h1 class="hero-title">Discover the <span class="text-gradient">Hidden Data</span> in your images.</h1>
+                <p class="hero-subtitle">Protect your privacy before you share. Our intelligence engine scans your photos for invisible location metadata and visual risks in milliseconds.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-glow" onclick="document.getElementById('uploadZone').focus(); document.getElementById('uploadZone').scrollIntoView({behavior:'smooth'})">Start Secure Scan</button>
+                    <a href="#features" class="btn btn-secondary">Explore Features</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual" aria-hidden="true">
+                <div class="radar-container">
+                    <div class="radar-ring ring-3"></div>
+                    <div class="radar-ring ring-2"></div>
+                    <div class="radar-ring ring-1"></div>
+                    <div class="radar-scanner"></div>
+                    <div class="radar-core">🔒</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App / Execution Section -->
+    <main class="app-section" id="app">
+        <div class="container">
+            <section class="glass-card upload-card" id="uploadSection">
+                <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload an image file">
+                    <div class="upload-icon" aria-hidden="true">📸</div>
+                    <h2 class="upload-title">Drop Target Required</h2>
+                    <p class="upload-subtitle">Drag & drop your file here, or click to securely browse</p>
+                    <span class="upload-format">Supports JPEG, PNG, HEIC (Max 10MB)</span>
+                    <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/heic,image/jpg" aria-label="File upload input">
+                </div>
+            </section>
+
+            <section id="loadingSection" class="glass-card loading-card" aria-live="polite">
+                <div class="spinner-container" aria-hidden="true">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-pulse"></div>
+                </div>
+                <h2 class="loading-title">Deep Scanning Architecture...</h2>
+                <span class="loading-tip">Extracting EXIF arrays and assessing visual topography.</span>
+            </section>
+
+            <section id="errorSection" class="glass-card error-card" aria-live="assertive">
+                <div class="alert alert-error">
+                    <div class="alert-icon" aria-hidden="true">⚠️</div>
+                    <div class="alert-content">
+                        <strong class="alert-title">System Alert</strong>
+                        <p class="alert-message" id="errorMessage">Data read failure.</p>
+                    </div>
+                </div>
+                <div class="action-bar" style="margin-top: var(--sp-3);">
+                    <button class="btn btn-primary" id="retryButton">Re-Initialize Scan</button>
+                </div>
+            </section>
+
+            <section id="resultsSection" class="results-container" aria-live="polite">
+                <div id="alertContainer"></div>
+
+                <div class="preview-container">
+                    <img id="imagePreview" class="image-preview" alt="Uploaded image preview">
+                </div>
+
+                <div class="results-grid">
+                    <article class="result-card">
+                        <h3 class="result-title"><span aria-hidden="true">📡</span> Metadata Extraction</h3>
+                        <div id="metadataResults"></div>
+                        <div class="expandable">
+                            <button class="btn-text expand-toggle" id="toggleMetadata" aria-expanded="false" aria-controls="metadataDetails">View Raw Data Structure</button>
+                            <div id="metadataDetails" class="expand-content" dir="ltr" style="text-align: left;"></div>
+                        </div>
+                    </article>
+
+                    <article class="result-card">
+                        <h3 class="result-title"><span aria-hidden="true">👁️</span> Visual Forensics</h3>
+                        <div id="visualResults"></div>
+                    </article>
+
+                    <article class="result-card">
+                        <h3 class="result-title"><span aria-hidden="true">🛡️</span> Security Posture</h3>
+                        <div id="riskAssessment"></div>
+                    </article>
+                </div>
+
+                <div id="mapContainer" class="map-card" style="display: none;">
+                    <h3 class="result-title"><span aria-hidden="true">🗺️</span> Extracted Coordinates</h3>
+                    <div id="map" class="map-view" aria-label="Interactive map showing extracted GPS location"></div>
+                    <div class="map-footer">
+                        <strong>Target Identified:</strong> <span id="mapCoordinates" dir="ltr"></span>
+                    </div>
+                </div>
+
+                <article class="educational-panel">
+                    <h3 class="panel-title"><span aria-hidden="true">💡</span> Threat Intel Briefing</h3>
+                    <div id="educationalContent"></div>
+                </article>
+
+                <div class="action-bar">
+                    <button class="btn btn-primary" id="resetButton">Scan New Target</button>
+                    <button class="btn btn-secondary" id="downloadReportBtn" style="font-family: inherit;">Export Security Report</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Enterprise-Grade <span class="text-gradient">Detection</span></h2>
+                <p class="section-subtitle">A comprehensive suite analyzing every layer of your imagery to ensure maximum operational security.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <img src="EXIF Extraction.png" alt="EXIF Extraction Satellite" class="feature-img glow-blue">
+                    <h3 class="feature-title">EXIF Extraction</h3>
+                    <p class="feature-desc">Instantly parses hidden metadata appended to files by smartphone sensors, including precise decimal GPS coordinates, altitude, and device hardware signatures.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Visual Forensics.png" alt="Visual Forensics Eye Scan" class="feature-img glow-cyan">
+                    <h3 class="feature-title">Visual Forensics</h3>
+                    <p class="feature-desc">While automated systems check EXIF data, our visual guidelines remind you to look for background topography, signage, and reflections that adversaries could weaponize.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Risk Scoring Matrix.png" alt="Risk Scoring Matrix Warning" class="feature-img glow-yellow">
+                    <h3 class="feature-title">Risk Scoring Matrix</h3>
+                    <p class="feature-desc">Every uploaded file is passed through our assessment matrix to assign an actionable threat level, allowing rapid determination of whether an asset is safe for deployment.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Privacy Awareness.png" alt="Privacy Awareness Shield" class="feature-img glow-cyan">
+                    <h3 class="feature-title">Privacy Awareness</h3>
+                    <p class="feature-desc">Go beyond simple stripping. SafeShare educates users on the mechanics of digital footprinting and operational security in the modern surveillance landscape.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Deployment <span class="text-gradient">Protocol</span></h2>
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>1. Select Payload</h3>
+                        <p>Drag your image file into the secure drop zone. We handle modern formats like HEIC alongside traditional JPEGs.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>2. Client-Side Processing</h3>
+                        <p>The system executes entirely locally. Your data remains in the active memory of your system and is never transmitted over the wire.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>3. Actionable Intelligence</h3>
+                        <p>Receive your customized threat assessment and risk evaluation to make an informed decision on public sharing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust / Privacy Section -->
+    <section class="trust-section" id="privacy">
+        <div class="container">
+            <div class="trust-banner">
+                <div class="trust-icon" aria-hidden="true">🔒</div>
+                <h2 class="section-title">Zero-Knowledge Architecture</h2>
+                <p class="section-subtitle" style="margin-top: var(--sp-2);">
+                    SafeShare operates completely in-browser. We do not maintain databases, we do not log IPs, and we do not store your images. What happens on your machine stays on your machine.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo" dir="ltr">🛡️ SafeShare</div>
+                    <p class="footer-text" style="margin-top: var(--sp-1);">Advanced intelligence to protect your digital footprint.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Terms of Service</a>
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link" dir="ltr">GitHub Source</a>
+                </div>
+            </div>
+            <div style="margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: var(--clr-text-muted); font-size: 12px;" dir="ltr">
+                &copy; 2026 SafeShare Systems. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+</html>

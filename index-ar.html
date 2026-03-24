@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeShare - الوعي المتقدم بخصوصية الموقع</title>
+    
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <div class="logo">
+                <span class="logo-icon" aria-hidden="true">🛡️</span>
+                <span class="logo-text" dir="ltr">SafeShare</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#features">المميزات</a>
+                <a href="#how-it-works">آلية العمل</a>
+                <a href="#privacy">الخصوصية</a>
+                <a href="index.html" class="lang-switch" title="التبديل إلى الإنجليزية" dir="ltr">EN / English</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Ambient animations -->
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+        
+        <div class="container hero-content">
+            <div class="hero-text">
+                <span class="hero-tag">التحليل الآمن للصور</span>
+                <h1 class="hero-title">اكتشف <span class="text-gradient">البيانات المخفية</span> داخل صورك قبل مشاركتها.</h1>
+                <p class="hero-subtitle">احمِ خصوصيتك الرقمية قبل النشر. محرك الاستخبارات المتطور لدينا يفحص صورك بدقة لرصد بيانات الموقع غير المرئية والمخاطر أو الدلائل البصرية في أجزاء من الثانية.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-glow" onclick="document.getElementById('uploadZone').focus(); document.getElementById('uploadZone').scrollIntoView({behavior:'smooth'})">ابدأ الفحص الآمن</button>
+                    <a href="#features" class="btn btn-secondary">استكشف المميزات</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual" aria-hidden="true">
+                <div class="radar-container">
+                    <div class="radar-ring ring-3"></div>
+                    <div class="radar-ring ring-2"></div>
+                    <div class="radar-ring ring-1"></div>
+                    <div class="radar-scanner"></div>
+                    <div class="radar-core">🔒</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App / Execution Section -->
+    <main class="app-section" id="app">
+        <div class="container">
+            <!-- Upload section -->
+            <section class="glass-card upload-card" id="uploadSection">
+                <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload an image file">
+                    <div class="upload-icon" aria-hidden="true">📸</div>
+                    <h2 class="upload-title">يرجى إدراج ملف الصورة</h2>
+                    <p class="upload-subtitle">اسحب وأفلت صورتك هنا، أو انقر لاستعراض الملفات بشكل آمن</p>
+                    <span class="upload-format">يدعم صيغ JPEG, PNG, HEIC (بحد أقصى 10 ميجابايت)</span>
+                    <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/heic,image/jpg" aria-label="File upload input">
+                </div>
+            </section>
+
+            <!-- Loading section -->
+            <section id="loadingSection" class="glass-card loading-card" aria-live="polite">
+                <div class="spinner-container" aria-hidden="true">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-pulse"></div>
+                </div>
+                <h2 class="loading-title">جارٍ تطبيق هيكلية الفحص العميق...</h2>
+                <span class="loading-tip">يتم الآن استخراج سلاسل البيانات الوصفية (EXIF) وتقييم التضاريس البصرية للصورة.</span>
+            </section>
+
+            <!-- Error section -->
+            <section id="errorSection" class="glass-card error-card" aria-live="assertive">
+                <div class="alert alert-error">
+                    <div class="alert-icon" aria-hidden="true">⚠️</div>
+                    <div class="alert-content">
+                        <strong class="alert-title">تنبيه النظام</strong>
+                        <p class="alert-message" id="errorMessage">فشل في قراءة بيانات الملف.</p>
+                    </div>
+                </div>
+                <div class="action-bar" style="margin-top: var(--sp-3);">
+                    <button class="btn btn-primary" id="retryButton">إعادة تهيئة الفحص</button>
+                </div>
+            </section>
+
+            <!-- Results section -->
+            <section id="resultsSection" class="results-container" aria-live="polite">
+                <div id="alertContainer"></div>
+
+                <div class="preview-container">
+                    <img id="imagePreview" class="image-preview" alt="Uploaded image preview">
+                </div>
+
+                <div class="results-grid">
+                    <article class="result-card">
+                        <h3 class="result-title"><span aria-hidden="true">📡</span> البيانات المستخرجة (EXIF)</h3>
+                        <div id="metadataResults"></div>
+                        <div class="expandable">
+                            <button class="btn-text expand-toggle" id="toggleMetadata" aria-expanded="false" aria-controls="metadataDetails">عرض بنية البيانات المعقدة للخادم</button>
+                            <div id="metadataDetails" class="expand-content" dir="ltr" style="text-align: left;"></div>
+                        </div>
+                    </article>
+
+                    <article class="result-card">
+                        <h3 class="result-title"><span aria-hidden="true">👁️</span> التحليل الاستدلالي البصري</h3>
+                        <div id="visualResults"></div>
+                    </article>
+
+                    <article class="result-card">
+                        <h3 class="result-title"><span aria-hidden="true">🛡️</span> تقييم الموقف الأمني للملف</h3>
+                        <div id="riskAssessment"></div>
+                    </article>
+                </div>
+
+                <div id="mapContainer" class="map-card" style="display: none;">
+                    <h3 class="result-title"><span aria-hidden="true">🗺️</span> الإحداثيات الجغرافية المستخرجة</h3>
+                    <div id="map" class="map-view" aria-label="Interactive map showing extracted GPS location"></div>
+                    <div class="map-footer">
+                        <strong>الموقع المرصود:</strong> <span id="mapCoordinates" dir="ltr"></span>
+                    </div>
+                </div>
+
+                <article class="educational-panel">
+                    <h3 class="panel-title"><span aria-hidden="true">💡</span> موجز الاستخبارات وتحليل التهديدات</h3>
+                    <div id="educationalContent"></div>
+                </article>
+
+                <div class="action-bar">
+                    <button class="btn btn-primary" id="resetButton">فحص هدف جديد</button>
+                    <button class="btn btn-secondary" id="downloadReportBtn" style="font-family: inherit;">تصدير التقرير الأمني الموحد</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">أنظمة كشف بمستوى <span class="text-gradient">قطاع الأعمال</span></h2>
+                <p class="section-subtitle">حزمة شاملة للتحليل العميق لكل طبقة في صورك، مصممة لضمان أقصى درجات الأمن التشغيلي.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <img src="EXIF Extraction.png" alt="شعار استخراج البيانات الوصفية (EXIF)" class="feature-img glow-blue">
+                    <h3 class="feature-title">استخراج البيانات الوصفية (EXIF)</h3>
+                    <p class="feature-desc">قراءة وتحليل فوري للبيانات الوصفية المخفية التي ترفقها مستشعرات الهواتف الذكية مع الملفات، بما في ذلك إحداثيات GPS الدقيقة بالنظام العشري، الارتفاع، والتوقيعات الرقمية للأجهزة العتادية.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Visual Forensics.png" alt="شعار التحليل الاستدلالي البصري" class="feature-img glow-cyan">
+                    <h3 class="feature-title">التحليل الاستدلالي البصري</h3>
+                    <p class="feature-desc">بالتزامن مع فحص أنظمتنا الآلية لبيانات EXIF، تنبهك معاييرنا البصرية لخطورة التضاريس الخلفية، اللوحات الإرشادية، والانعكاسات التي قد يستغلها المهاجمون لاختراق خصوصيتك.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Risk Scoring Matrix.png" alt="شعار مصفوفة تقييم المخاطر" class="feature-img glow-yellow">
+                    <h3 class="feature-title">مصفوفة تقييم المخاطر</h3>
+                    <p class="feature-desc">يُمرر كل ملف مرفوع عبر مصفوفة التقييم الخاصة بنا ومنحه مستوى تهديد دقيق وقابل للإجراء، مما يتيح لك اتخاذ قرار سريع وحاسم بشأن جاهزية وأمان الأصل الرقمي للنشر العام.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="Privacy Awareness.png" alt="شعار تعزيز وعي الخصوصية" class="feature-img glow-cyan">
+                    <h3 class="feature-title">تعزيز وعي الخصوصية</h3>
+                    <p class="feature-desc">نتجاوز مجرد إزالة البيانات؛ فمنصة SafeShare تثقف المستخدمين عملياً حول آليات تكوين البصمة الرقمية والأمن التشغيلي في ظل تحديات المشهد الحالي للمراقبة الرقمية الحديثة.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">بروتوكول <span class="text-gradient">التشغيل الآمن</span></h2>
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>تحديد الهدف (إدراج الصورة)</h3>
+                        <p>قم بسحب وإفلات ملف الصورة في منطقتنا الآمنة. نظامنا القوي مُهيأ للتعامل مع أحدث الصيغ مثل HEIC جنباً إلى جنب مع صيغ JPEG التقليدية بسلاسة تامة.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>المعالجة الطرفية (Client-Side)</h3>
+                        <p>تتم عمليات المعالجة والتحليل محلياً بالكامل. تظل بياناتك المشفرة داخل الذاكرة النشطة لجهازك ولا يتم نقلها أو تحميلها عبر خوادم ومسارات الشبكة إطلاقاً.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>استخبارات قابلة للتنفيذ</h3>
+                        <p>احصل فوراً على تقييم مخصص لنسبة المخاطر والتهديدات الأمنية، مما يمنحك الرؤية الشاملة والقدرة التامة على اتخاذ قرار مدروس وآمن قبل أي مشاركة أو تداول عام.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust / Privacy Section -->
+    <section class="trust-section" id="privacy">
+        <div class="container">
+            <div class="trust-banner">
+                <div class="trust-icon" aria-hidden="true">🔒</div>
+                <h2 class="section-title">بنية السرية التامة (Zero-Knowledge)</h2>
+                <p class="section-subtitle" style="margin-top: var(--sp-2);">
+                    تعمل منصة SafeShare بشكل كامل وحصري ومستقل داخل متصفحك. نحن لا نمتلك أي قواعد بيانات لصورك، ولا نسجل عناوين IP الخاصة بك، ولا نخزن أو نحتفظ بأي معلومة. ما يحدث ويُحلَّل داخل جهازك، يبقى فيه ملكاً لك حصرياً.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo" dir="ltr">🛡️ SafeShare</div>
+                    <p class="footer-text" style="margin-top: var(--sp-1);">استخبارات متقدمة تهدف باحترافية لحماية هويتك وبصمتك الرقمية.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">شروط الخدمة</a>
+                    <a href="#" class="footer-link">سياسة الخصوصية</a>
+                    <a href="#" class="footer-link" dir="ltr">GitHub Source</a>
+                </div>
+            </div>
+            <div style="margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: var(--clr-text-muted); font-size: 12px;" dir="ltr">
+                &copy; 2026 SafeShare Systems. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+</html>
